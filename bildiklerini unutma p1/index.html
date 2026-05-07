@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net 'unsafe-eval' 'unsafe-inline'; object-src 'none';">
+    <title>Kelime Öğrenme</title>
+    <meta name="description" content="Aralıklı tekrar yöntemi ile kelime öğrenme uygulaması">
+    <meta name="theme-color" content="#3b82f6">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab-button {
+            @apply py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300;
+        }
+        .tab-button.active {
+            @apply border-blue-500 text-blue-600;
+        }
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* Mobile optimizations */
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { 
+            padding-left: 1rem; 
+            padding-right: 1rem; 
+        }
+        .tab-button { 
+            font-size: 0.875rem; 
+            padding: 0.5rem; 
+        }
+        .grid-cols-3 { 
+            grid-template-columns: 1fr; 
+        }
+        @media (min-width: 768px) {
+            .grid-cols-3 { 
+                grid-template-columns: repeat(3, minmax(0, 1fr)); 
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Giriş Ekranı -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <div class="text-center mb-6">
+                <div class="text-6xl mb-4">📚</div>
+                <h1 class="text-2xl font-bold text-gray-800">Kelime Öğrenme</h1>
+                <p class="text-sm text-gray-600 mt-2">Aralıklı tekrar ile etkili öğrenme</p>
+            </div>
+            <div class="space-y-4">
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="Kullanıcı adınızı girin" 
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                >
+                <button 
+                    onclick="login()" 
+                    class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                >
+                    Giriş Yap / Kayıt Ol
+                </button>
+                
+                <!-- Veri İçe Aktarma -->
+                <div class="border-t pt-4">
+                    <p class="text-xs text-gray-600 mb-2 text-center">Başka cihazdan veri aktarmak için:</p>
+                    <input type="file" id="importFile" accept=".json" class="hidden">
+                    <button 
+                        onclick="document.getElementById('importFile').click()" 
+                        class="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                    >
+                        📥 Veri İçe Aktar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana Uygulama -->
+    <div id="mainApp" class="hidden">
+        <!-- Başlık -->
+        <div class="bg-white shadow-sm border-b sticky top-0 z-10">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2">📚</span>
+                    <h1 class="text-lg font-bold text-gray-800">Kelime Öğrenme</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentUser" class="text-gray-600 text-xs hidden sm:block"></span>
+                    <button onclick="exportData()" class="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-xs">
+                        📤
+                    </button>
+                    <button onclick="logout()" class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-xs">
+                        Çıkış
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 py-4">
+            <!-- Navigasyon Sekmeleri -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-2">
+                        <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-button active">Ana Sayfa</button>
+                        <button onclick="showTab('folders')" id="foldersTab" class="tab-button">Klasörler</button>
+                        <button onclick="showTab('quiz')" id="quizTab" class="tab-button">Quiz</button>
+                        <button onclick="showTab('stats')" id="statsTab" class="tab-button">İstatistik</button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Ana Sayfa Sekmesi -->
+            <div id="dashboardContent" class="tab-content">
+                <!-- Bildirimler -->
+                <div id="notificationsArea" class="mb-4"></div>
+                
+                <!-- Bugün Tekrar Edilecekler -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">🔔</span>
+                        Bugün Tekrar Edilecekler
+                    </h2>
+                    <div id="reviewsList" class="space-y-2"></div>
+                </div>
+
+                <!-- Hızlı İstatistikler -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <h3 class="text-xs font-semibold mb-2 text-gray-600">Toplam Kelime</h3>
+                        <p id="totalWords" class="text-2xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <h3 class="text-xs font-semibold mb-2 text-gray-600">Bugün Tekrar</h3>
+                        <p id="dueToday" class="text-2xl font-bold text-red-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <h3 class="text-xs font-semibold mb-2 text-gray-600">Öğrenilen</h3>
+                        <p id="masteredWords" class="text-2xl font-bold text-green-600">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Klasörler Sekmesi -->
+            <div id="foldersContent" class="tab-content hidden">
+                <!-- Klasör Oluştur -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📁</span>
+                        Yeni Klasör Oluştur
+                    </h2>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="folderNameInput" 
+                            placeholder="Klasör adı girin" 
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                        <button 
+                            onclick="createFolder()" 
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors whitespace-nowrap"
+                        >
+                            Oluştur
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Klasör Listesi -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📂</span>
+                        Klasörlerim
+                    </h2>
+                    <div id="foldersList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Quiz Sekmesi -->
+            <div id="quizContent" class="tab-content hidden">
+                <div id="quizArea" class="bg-white rounded-lg shadow-md p-4"></div>
+            </div>
+
+            <!-- İstatistik Sekmesi -->
+            <div id="statsContent" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📊</span>
+                        Öğrenme İlerlemesi
+                    </h2>
+                    <canvas id="forgettingCurveChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kelime Yönetimi Modal -->
+    <div id="wordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg p-4 w-full max-w-md max-h-screen overflow-y-auto">
+            <h3 id="modalTitle" class="text-lg font-semibold mb-4"></h3>
+            <div class="space-y-3">
+                <input 
+                    type="text" 
+                    id="wordInput" 
+                    placeholder="Kelime/terim girin" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <textarea 
+                    id="definitionInput" 
+                    placeholder="Anlamını/açıklamasını girin" 
+                    rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ></textarea>
+                <select 
+                    id="wordDifficultySelect" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="easy">Kolay</option>
+                    <option value="medium">Orta</option>
+                    <option value="hard">Zor</option>
+                </select>
+                <div class="flex gap-2">
+                    <button 
+                        onclick="saveWord()" 
+                        class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                        Kaydet
+                    </button>
+                    <button 
+                        onclick="closeWordModal()" 
+                        class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                        İptal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cordova Scripts -->
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>

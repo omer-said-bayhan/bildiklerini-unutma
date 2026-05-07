@@ -1,0 +1,17 @@
+{
+  "name": "Bildiklerini Unutma",
+  "short_name": "Bildiklerini Unutma",
+  "description": "Aralıklı tekrar yöntemi ile bildiklerini unutma uygulaması",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzM3ODJmNiIvPjxwYXRoIGQ9Ik0xMjggNjRjLTE0IDAtMjUtMTEtMjUtMjVWMTczYzAgMTQgMTQgMTQgMTQgMTRoS3oiIGZpbGw9IndoaXRlIi8+PC9zdmc+",
+      "sizes": "256x256",
+      "type": "image/svg+xml"
+    }
+  ],
+  "lang": "tr"
+}

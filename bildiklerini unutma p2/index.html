@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bildiklerini Unutma</title>
+    <meta name="description" content="Aralıklı tekrar yöntemi ile bildiklerini unutma uygulaması">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzM3ODJmNiIvPjxwYXRoIGQ9Ik0xMjggNjRjLTE0IDAtMjUtMTEtMjUtMjVWMTczYzAgMTQgMTQgMTQgMTQgMTRoS3oiIGZpbGw9IndoaXRlIi8+PC9zdmc+">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Tema Değiştir">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <!-- Language Toggle -->
+    <div class="language-toggle" onclick="toggleLanguage()" title="Dil Değiştir">
+        <span id="languageIcon">🇹🇷</span>
+    </div>
+
+    <!-- Tanıtım Ekranı -->
+    <div id="introScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+            <div class="text-center">
+                <!-- Ana Logo/İkon -->
+                <div class="text-6xl mb-4">🧠</div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-4" id="introTitle">Bildiklerini Unutma</h1>
+                <p class="text-gray-600 mb-6 text-lg" id="introSubtitle">Aralıklı Tekrar ile Kalıcı Öğrenme</p>
+                
+                <!-- Özellikler -->
+                <div class="space-y-4 mb-8 text-left">
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">📚</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" id="feature1Title">Akıllı Tekrar Sistemi</h3>
+                            <p class="text-gray-600 text-sm" id="feature1Desc">Ebbinghaus unutma eğrisine göre kelimelerinizi tam zamanında tekrar edin</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">📁</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" id="feature2Title">Organize Klasörler</h3>
+                            <p class="text-gray-600 text-sm" id="feature2Desc">Kelimelerinizi konulara göre düzenleyin ve alt klasörler oluşturun</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">🎯</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" id="feature3Title">Çeşitli Quiz Türleri</h3>
+                            <p class="text-gray-600 text-sm" id="feature3Desc">Hızlı quiz, zorluk bazlı quiz ve daha fazlası ile kendinizi test edin</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">📊</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" id="feature4Title">Detaylı İstatistikler</h3>
+                            <p class="text-gray-600 text-sm" id="feature4Desc">İlerlemenizi takip edin ve öğrenme başarınızı görün</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">🔔</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" id="feature5Title">Akıllı Hatırlatmalar</h3>
+                            <p class="text-gray-600 text-sm" id="feature5Desc">Tekrar zamanı geldiğinde size bildirim gönderir</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Başlangıç Butonu -->
+                <button onclick="showLoginScreen()" class="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-lg font-semibold" id="startButton">Başlayalım! 🚀</button>
+                
+                <!-- Alt Bilgi -->
+                <p class="text-gray-500 text-xs mt-4" id="introFooter">Bilimsel olarak kanıtlanmış aralıklı tekrar yöntemi ile öğrenin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Giriş Ekranı -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <h1 class="text-2xl font-bold text-center mb-6">📚 Bildiklerini Unutma</h1>
+            
+            <!-- Giriş/Kayıt Seçimi -->
+            <div class="mb-6">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button id="loginTabBtn" onclick="showLoginTab()" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">Giriş Yap</button>
+                    <button id="registerTabBtn" onclick="showRegisterTab()" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-800">Kayıt Ol</button>
+                </div>
+            </div>
+            
+            <!-- Giriş Formu -->
+            <div id="loginForm" class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="E-mail adresinizi girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="loginPassword" placeholder="Şifrenizi girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="loginUser()" class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">Giriş Yap</button>
+            </div>
+            
+            <!-- Kayıt Formu -->
+            <div id="registerForm" class="space-y-4 hidden">
+                <input type="text" id="registerName" placeholder="Adınızı girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="email" id="registerEmail" placeholder="E-mail adresinizi girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="registerPassword" placeholder="Şifre oluşturun (min 6 karakter)" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="registerPasswordConfirm" placeholder="Şifreyi tekrar girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="registerUser()" class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">Kayıt Ol</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tanıtım Turu Overlay -->
+    <div id="tutorialOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+                <div class="text-center">
+                    <div id="tutorialStep" class="mb-4">
+                        <!-- Tutorial steps will be inserted here -->
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button id="tutorialPrev" onclick="previousTutorialStep()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50" disabled>← Geri</button>
+                        <div id="tutorialProgress" class="flex space-x-2">
+                            <!-- Progress dots will be inserted here -->
+                        </div>
+                        <button id="tutorialNext" onclick="nextTutorialStep()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">İleri →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana Uygulama -->
+    <div id="mainApp" class="hidden">
+        <!-- Başlık -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">📚 Öğrenme Paneli</h1>
+                <div class="flex items-center gap-2">
+                    <span id="currentUser" class="text-gray-600 text-sm"></span>
+                    <button onclick="logout()" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm">Çıkış</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 py-6">
+            <!-- Navigasyon Sekmeleri -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-4">
+                        <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-button active">Ana Sayfa</button>
+                        <button onclick="showTab('folders')" id="foldersTab" class="tab-button">Klasörler</button>
+                        <button onclick="showTab('quiz')" id="quizTab" class="tab-button">Quiz</button>
+                        <button onclick="showTab('stats')" id="statsTab" class="tab-button">İstatistik</button>
+                        <button onclick="showTab('admin')" id="adminTab" class="tab-button">👑 Admin</button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Ana Sayfa Sekmesi -->
+            <div id="dashboardContent" class="tab-content">
+                <!-- Bildirimler -->
+                <div id="notificationsArea" class="mb-4"></div>
+                
+                <!-- Bugün Tekrar Edilecekler -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">🔔 Bugün Tekrar Edilecekler</h2>
+                    <div id="reviewsList" class="space-y-2"></div>
+                </div>
+                
+                <!-- Hızlı İstatistikler -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="streakTitle">🔥 Günlük Seri</h3>
+                        <p id="streakCount" class="text-2xl font-bold text-orange-600">0</p>
+                        <p class="text-xs text-gray-500" id="streakText">gün</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="totalWordsTitle">Toplam Kelime</h3>
+                        <p id="totalWords" class="text-2xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="dueTodayTitle">Bugün Tekrar</h3>
+                        <p id="dueToday" class="text-2xl font-bold text-red-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="masteredTitle">Öğrenilen</h3>
+                        <p id="masteredWords" class="text-2xl font-bold text-green-600">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Klasörler Sekmesi -->
+            <div id="foldersContent" class="tab-content hidden">
+                <!-- Klasör Oluştur -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">📁 Yeni Klasör Oluştur</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="folderNameInput" placeholder="Klasör adı girin" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="createFolder()" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">Oluştur</button>
+                    </div>
+                </div>
+                
+                <!-- Klasör Listesi -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-4">📂 Klasörlerim</h2>
+                    <div id="foldersList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Quiz Sekmesi -->
+            <div id="quizContent" class="tab-content hidden">
+                <!-- Quiz İstatistikleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <h2 class="text-lg font-semibold mb-3">📊 Quiz İstatistikleri</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div class="p-2 bg-blue-50 rounded-lg">
+                            <div class="text-lg font-bold text-blue-600" id="totalQuizzes">0</div>
+                            <div class="text-xs text-gray-600" id="totalQuizzesLabel">Toplam Quiz</div>
+                        </div>
+                        <div class="p-2 bg-green-50 rounded-lg">
+                            <div class="text-lg font-bold text-green-600" id="averageScore">0%</div>
+                            <div class="text-xs text-gray-600" id="averageScoreLabel">Ortalama</div>
+                        </div>
+                        <div class="p-2 bg-purple-50 rounded-lg">
+                            <div class="text-lg font-bold text-purple-600" id="bestStreak">0</div>
+                            <div class="text-xs text-gray-600" id="bestStreakLabel">En İyi Seri</div>
+                        </div>
+                        <div class="p-2 bg-orange-50 rounded-lg">
+                            <div class="text-lg font-bold text-orange-600" id="todayQuizzes">0</div>
+                            <div class="text-xs text-gray-600" id="todayQuizzesLabel">Bugün</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Türleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <h2 class="text-lg font-semibold mb-4">🎮 Quiz Türleri</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button onclick="startQuickQuiz()" class="p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="quickQuizTitle">⚡ Hızlı Quiz</div>
+                                    <div class="text-sm opacity-90" id="quickQuizDesc">5 rastgele kelime</div>
+                                </div>
+                                <div class="text-2xl">🚀</div>
+                            </div>
+                        </button>
+                        <button onclick="startDifficultyQuiz()" class="p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="difficultyQuizTitle">🔥 Zorluk Quiz</div>
+                                    <div class="text-sm opacity-90" id="difficultyQuizDesc">Zor kelimeler</div>
+                                </div>
+                                <div class="text-2xl">💪</div>
+                            </div>
+                        </button>
+                        <button onclick="startReviewQuiz()" class="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="reviewQuizTitle">🔄 Tekrar Quiz</div>
+                                    <div class="text-sm opacity-90" id="reviewQuizDesc">Unutulan kelimeler</div>
+                                </div>
+                                <div class="text-2xl">🎯</div>
+                            </div>
+                        </button>
+                        <button onclick="startMasteryQuiz()" class="p-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="masteryQuizTitle">👑 Ustalık Quiz</div>
+                                    <div class="text-sm opacity-90" id="masteryQuizDesc">Öğrenilen kelimeler</div>
+                                </div>
+                                <div class="text-2xl">🏆</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Seçenekleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">📁 Klasör Bazlı Quiz</h2>
+                    <div id="quizOptions" class="space-y-2"></div>
+                </div>
+
+                <!-- Quiz Alanı -->
+                <div id="quizArea" class="bg-white rounded-lg shadow-md p-4"></div>
+            </div>
+
+            <!-- İstatistik Sekmesi -->
+            <div id="statsContent" class="tab-content hidden">
+                <!-- Genel İstatistikler -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">📚</div>
+                        <div class="text-2xl font-bold text-blue-600" id="statTotalWords">0</div>
+                        <div class="text-xs text-gray-500" id="statTotalWordsLabel">Toplam Kelime</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">✅</div>
+                        <div class="text-2xl font-bold text-green-600" id="statMasteredWords">0</div>
+                        <div class="text-xs text-gray-500" id="statMasteredWordsLabel">Öğrenilen</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">🔥</div>
+                        <div class="text-2xl font-bold text-orange-600" id="statCurrentStreak">0</div>
+                        <div class="text-xs text-gray-500" id="statCurrentStreakLabel">Günlük Seri</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">🎯</div>
+                        <div class="text-2xl font-bold text-purple-600" id="statAccuracy">0%</div>
+                        <div class="text-xs text-gray-500" id="statAccuracyLabel">Doğruluk</div>
+                    </div>
+                </div>
+
+                <!-- Haftalık Aktivite -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📅</span>
+                        <span id="weeklyActivityTitle">Haftalık Aktivite</span>
+                    </h3>
+                    <div class="grid grid-cols-7 gap-2 mb-2">
+                        <div class="text-center text-xs text-gray-500">Pzt</div>
+                        <div class="text-center text-xs text-gray-500">Sal</div>
+                        <div class="text-center text-xs text-gray-500">Çar</div>
+                        <div class="text-center text-xs text-gray-500">Per</div>
+                        <div class="text-center text-xs text-gray-500">Cum</div>
+                        <div class="text-center text-xs text-gray-500">Cmt</div>
+                        <div class="text-center text-xs text-gray-500">Paz</div>
+                    </div>
+                    <div id="weeklyActivityGrid" class="grid grid-cols-7 gap-2">
+                        <!-- Activity squares will be generated here -->
+                    </div>
+                    <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+                        <span>Az</span>
+                        <div class="flex gap-1">
+                            <div class="w-3 h-3 bg-gray-200 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-200 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-600 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-800 rounded-sm"></div>
+                        </div>
+                        <span>Çok</span>
+                    </div>
+                </div>
+
+                <!-- Klasör Performansı -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📁</span>
+                        <span id="folderPerformanceTitle">Klasör Performansı</span>
+                    </h3>
+                    <div id="folderPerformanceList" class="space-y-3">
+                        <!-- Folder performance items will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Zorluk Dağılımı -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">⚖️</span>
+                        <span id="difficultyDistributionTitle">Zorluk Dağılımı</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😊</span>
+                                <span class="text-sm" id="easyLabel">Kolay</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="easyBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="easyCount" class="text-sm font-semibold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😐</span>
+                                <span class="text-sm" id="mediumLabel">Orta</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="mediumBar" class="bg-yellow-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="mediumCount" class="text-sm font-semibold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😰</span>
+                                <span class="text-sm" id="hardLabel">Zor</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="hardBar" class="bg-red-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="hardCount" class="text-sm font-semibold">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Son Aktiviteler -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">⏰</span>
+                        <span id="recentActivityTitle">Son Aktiviteler</span>
+                    </h3>
+                    <div id="recentActivityList" class="space-y-2">
+                        <!-- Recent activities will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Paneli -->
+            <div id="adminContent" class="tab-content hidden">
+                <!-- Admin Başlık -->
+                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-2xl font-bold mb-2">👑 Admin Paneli</h2>
+                    <p class="text-purple-100">Tüm kullanıcıları ve sistem istatistiklerini görüntüleyin</p>
+                </div>
+
+                <!-- Sistem İstatistikleri -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">👥</div>
+                        <div class="text-2xl font-bold text-blue-600" id="totalUsers">0</div>
+                        <div class="text-sm text-gray-500">Toplam Kullanıcı</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">📚</div>
+                        <div class="text-2xl font-bold text-green-600" id="totalWordsSystem">0</div>
+                        <div class="text-sm text-gray-500">Toplam Kelime</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">📁</div>
+                        <div class="text-2xl font-bold text-purple-600" id="totalFoldersSystem">0</div>
+                        <div class="text-sm text-gray-500">Toplam Klasör</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <div class="text-2xl font-bold text-orange-600" id="totalQuizzesSystem">0</div>
+                        <div class="text-sm text-gray-500">Toplam Quiz</div>
+                    </div>
+                </div>
+
+                <!-- Kullanıcı Listesi -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">📋 Kayıtlı Kullanıcılar</h3>
+                        <button onclick="refreshUserList()" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm">🔄 Yenile</button>
+                    </div>
+                    
+                    <!-- Arama Kutusu -->
+                    <div class="mb-4">
+                        <input type="text" id="userSearchInput" placeholder="Kullanıcı ara (isim veya e-mail)..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterUsers()">
+                    </div>
+                    
+                    <!-- Kullanıcı Tablosu -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">👤 Kullanıcı</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">📧 E-mail</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">📅 Kayıt Tarihi</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">📚 Kelime</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">📁 Klasör</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">🔥 Seri</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">⚡ İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="divide-y divide-gray-200">
+                                <!-- Kullanıcılar buraya yüklenecek -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Kullanıcı Bulunamadı Mesajı -->
+                    <div id="noUsersMessage" class="text-center py-8 text-gray-500 hidden">
+                        <div class="text-4xl mb-2">👤</div>
+                        <p>Henüz kayıtlı kullanıcı yok</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kelime Yönetimi Modal -->
+    <div id="wordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg p-4 w-full max-w-md">
+            <h3 id="modalTitle" class="text-lg font-semibold mb-4"></h3>
+            <div class="space-y-3">
+                <input type="text" id="wordInput" placeholder="Kelime/terim girin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <textarea id="definitionInput" placeholder="Anlamını/açıklamasını girin" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <select id="wordLanguageSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="ku">🟡 Kurdî</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                    <option value="tr">🇹🇷 Türkçe</option>
+                </select>
+                <select id="wordDifficultySelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="easy">Kolay</option>
+                    <option value="medium">Orta</option>
+                    <option value="hard">Zor</option>
+                </select>
+                <div class="flex gap-2">
+                    <button onclick="saveWord()" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors" id="saveWordBtn">Kaydet</button>
+                    <button onclick="closeWordModal()" class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors" id="cancelWordBtn">İptal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

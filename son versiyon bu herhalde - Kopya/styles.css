@@ -1,0 +1,672 @@
+/* Dark Mode Variables */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-card: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --accent-color: #3b82f6;
+    --input-bg: #ffffff;
+    --input-text: #1f2937;
+    --input-border: #d1d5db;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-card: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --border-color: #4b5563;
+    --accent-color: #60a5fa;
+    --input-bg: #374151;
+    --input-text: #f9fafb;
+    --input-border: #6b7280;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Input ve textarea stilleri */
+input, textarea, select {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--input-border) !important;
+    transition: all 0.3s ease;
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+}
+
+input:focus, textarea:focus, select:focus {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Select option stilleri */
+select option {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+}
+
+.bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-100 { background-color: var(--bg-secondary) !important; }
+.bg-gray-50 { background-color: var(--bg-secondary) !important; }
+.text-gray-800 { color: var(--text-primary) !important; }
+.text-gray-600 { color: var(--text-secondary) !important; }
+.text-gray-500 { color: var(--text-secondary) !important; }
+.text-gray-700 { color: var(--text-primary) !important; }
+.border-gray-200 { border-color: var(--border-color) !important; }
+.border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Dark mode için ek renkler */
+[data-theme="dark"] .bg-gray-50 { background-color: #374151 !important; }
+[data-theme="dark"] .bg-yellow-50 { background-color: #451a03 !important; }
+[data-theme="dark"] .bg-blue-50 { background-color: #1e3a8a !important; }
+[data-theme="dark"] .bg-green-50 { background-color: #14532d !important; }
+[data-theme="dark"] .bg-red-50 { background-color: #7f1d1d !important; }
+[data-theme="dark"] .bg-purple-50 { background-color: #581c87 !important; }
+[data-theme="dark"] .bg-indigo-50 { background-color: #312e81 !important; }
+[data-theme="dark"] .bg-pink-50 { background-color: #831843 !important; }
+[data-theme="dark"] .bg-teal-50 { background-color: #134e4a !important; }
+
+/* Border renklerini dark mode için ayarla */
+[data-theme="dark"] .border-yellow-200 { border-color: #a16207 !important; }
+[data-theme="dark"] .border-blue-200 { border-color: #1d4ed8 !important; }
+[data-theme="dark"] .border-green-200 { border-color: #16a34a !important; }
+[data-theme="dark"] .border-red-200 { border-color: #dc2626 !important; }
+[data-theme="dark"] .border-purple-200 { border-color: #9333ea !important; }
+[data-theme="dark"] .border-indigo-200 { border-color: #4f46e5 !important; }
+[data-theme="dark"] .border-pink-200 { border-color: #ec4899 !important; }
+[data-theme="dark"] .border-teal-200 { border-color: #14b8a6 !important; }
+
+/* Hover renklerini dark mode için ayarla */
+[data-theme="dark"] .hover\:border-yellow-400:hover { border-color: #facc15 !important; }
+[data-theme="dark"] .hover\:border-blue-400:hover { border-color: #60a5fa !important; }
+[data-theme="dark"] .hover\:border-green-400:hover { border-color: #4ade80 !important; }
+[data-theme="dark"] .hover\:border-red-400:hover { border-color: #f87171 !important; }
+[data-theme="dark"] .hover\:border-purple-400:hover { border-color: #c084fc !important; }
+[data-theme="dark"] .hover\:border-indigo-400:hover { border-color: #818cf8 !important; }
+[data-theme="dark"] .hover\:border-pink-400:hover { border-color: #f472b6 !important; }
+[data-theme="dark"] .hover\:border-teal-400:hover { border-color: #2dd4bf !important; }
+
+/* Hover background renklerini dark mode için ayarla */
+[data-theme="dark"] .hover\:bg-gray-100:hover { background-color: #4b5563 !important; }
+[data-theme="dark"] .hover\:bg-blue-50:hover { background-color: #1e40af !important; }
+
+/* Text renklerini dark mode için ayarla */
+[data-theme="dark"] .text-yellow-800 { color: #fbbf24 !important; }
+[data-theme="dark"] .text-yellow-700 { color: #f59e0b !important; }
+[data-theme="dark"] .text-yellow-600 { color: #d97706 !important; }
+[data-theme="dark"] .text-blue-800 { color: #60a5fa !important; }
+[data-theme="dark"] .text-blue-700 { color: #3b82f6 !important; }
+[data-theme="dark"] .text-blue-600 { color: #2563eb !important; }
+[data-theme="dark"] .text-green-800 { color: #4ade80 !important; }
+[data-theme="dark"] .text-green-700 { color: #22c55e !important; }
+[data-theme="dark"] .text-green-600 { color: #16a34a !important; }
+[data-theme="dark"] .text-red-800 { color: #f87171 !important; }
+[data-theme="dark"] .text-red-700 { color: #ef4444 !important; }
+[data-theme="dark"] .text-red-600 { color: #dc2626 !important; }
+[data-theme="dark"] .text-purple-800 { color: #c084fc !important; }
+[data-theme="dark"] .text-purple-700 { color: #a855f7 !important; }
+[data-theme="dark"] .text-purple-600 { color: #9333ea !important; }
+[data-theme="dark"] .text-indigo-800 { color: #818cf8 !important; }
+[data-theme="dark"] .text-indigo-700 { color: #6366f1 !important; }
+[data-theme="dark"] .text-indigo-600 { color: #4f46e5 !important; }
+[data-theme="dark"] .text-pink-800 { color: #f472b6 !important; }
+[data-theme="dark"] .text-pink-700 { color: #ec4899 !important; }
+[data-theme="dark"] .text-pink-600 { color: #db2777 !important; }
+[data-theme="dark"] .text-teal-800 { color: #2dd4bf !important; }
+[data-theme="dark"] .text-teal-700 { color: #14b8a6 !important; }
+[data-theme="dark"] .text-teal-600 { color: #0d9488 !important; }
+
+/* Haftalık aktivite renkleri için dark mode */
+[data-theme="dark"] .bg-gray-300 { background-color: #4b5563 !important; }
+[data-theme="dark"] .text-gray-500 { color: #9ca3af !important; }
+[data-theme="dark"] .bg-green-300 { background-color: #16a34a !important; }
+[data-theme="dark"] .text-green-800 { color: #bbf7d0 !important; }
+[data-theme="dark"] .bg-green-400 { background-color: #22c55e !important; }
+[data-theme="dark"] .text-green-900 { color: #dcfce7 !important; }
+[data-theme="dark"] .bg-green-500 { background-color: #16a34a !important; }
+[data-theme="dark"] .bg-green-600 { background-color: #15803d !important; }
+
+.tab-button {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 2px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+.tab-button:hover {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+.tab-button.active {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.notification {
+    animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Language Toggle Button */
+.language-toggle {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.language-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Folder hierarchy styles */
+.folder-item {
+    transition: all 0.2s ease;
+}
+
+.folder-item:hover {
+    transform: translateX(2px);
+}
+
+.folder-hierarchy-line {
+    border-left: 2px solid var(--border-color);
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+/* Tutorial overlay styles */
+#tutorialOverlay {
+    backdrop-filter: blur(2px);
+}
+
+.tutorial-highlight {
+    position: relative;
+    z-index: 60;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3), 0 0 30px rgba(59, 130, 246, 0.5); }
+}
+
+.tutorial-progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #d1d5db;
+    transition: all 0.3s ease;
+}
+
+.tutorial-progress-dot.active {
+    background-color: #3b82f6;
+    transform: scale(1.2);
+}
+
+/* Quiz textarea özel stilleri */
+#quizAnswer {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--input-border) !important;
+}
+
+#quizAnswer::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+}
+
+#quizAnswer:focus {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Modal input stilleri */
+#wordModal input, #wordModal textarea, #wordModal select {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--input-border) !important;
+}
+
+#wordModal input::placeholder, #wordModal textarea::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+}
+
+/* Button hover effects */
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Folder expand/collapse animation */
+.folder-item .p-3 {
+    transition: all 0.3s ease;
+}
+
+.folder-item:hover .p-3 {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .container { padding-left: 1rem; padding-right: 1rem; }
+    .tab-button { font-size: 0.875rem; padding: 0.5rem; }
+    .grid-cols-3 { grid-template-columns: 1fr; }
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+    }
+    .language-toggle {
+        top: 60px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    /* Mobile folder hierarchy adjustments */
+    .folder-item {
+        margin-left: 0 !important;
+    }
+    
+    .folder-item .p-3 {
+        padding: 0.5rem;
+    }
+
+    /* Mobile button adjustments */
+    .flex.gap-1 button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Tanıtım ekranı mobil düzenlemeleri */
+    #introScreen .bg-white {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    #introScreen h1 {
+        font-size: 1.75rem;
+    }
+    
+    #introScreen .text-6xl {
+        font-size: 3rem;
+    }
+    
+    /* Özellik listesi mobil */
+    #introScreen .space-y-4 > div {
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* E-mail validation styles */
+.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.border-green-500 {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+.text-red-500 {
+    color: #ef4444;
+}
+
+.text-green-500 {
+    color: #10b981;
+}
+
+/* Input focus states */
+input:focus.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
+}
+
+input:focus.border-green-500 {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Error message animation */
+.error-message {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tanıtım ekranı animasyonları */
+#introScreen {
+    animation: fadeIn 0.8s ease-out;
+}
+
+#introScreen .bg-white {
+    animation: slideUp 0.8s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Özellik listesi animasyonu */
+#introScreen .space-y-4 > div {
+    animation: fadeInLeft 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+#introScreen .space-y-4 > div:nth-child(1) { animation-delay: 0.2s; }
+#introScreen .space-y-4 > div:nth-child(2) { animation-delay: 0.3s; }
+#introScreen .space-y-4 > div:nth-child(3) { animation-delay: 0.4s; }
+#introScreen .space-y-4 > div:nth-child(4) { animation-delay: 0.5s; }
+#introScreen .space-y-4 > div:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Başlangıç butonu hover efekti */
+#startButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Activity heatmap styles */
+.activity-0 { background-color: #ebedf0; }
+.activity-1 { background-color: #c6e48b; }
+.activity-2 { background-color: #7bc96f; }
+.activity-3 { background-color: #239a3b; }
+.activity-4 { background-color: #196127; }
+
+/* Quiz game styles */
+#quizGame {
+    animation: slideIn 0.3s ease-out;
+}
+
+#quizAnswer {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Difficulty bars */
+.bg-green-500 { background-color: #10b981; }
+.bg-yellow-500 { background-color: #f59e0b; }
+.bg-red-500 { background-color: #ef4444; }
+
+/* Quiz type cards hover effects */
+.quiz-type-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal animations */
+.fixed.inset-0 {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.fixed.inset-0 > div {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Folder selection modal */
+.folder-selection-button {
+    transition: all 0.2s ease;
+}
+
+.folder-selection-button:hover {
+    background-color: var(--bg-secondary);
+    transform: translateX(4px);
+}
+
+/* Progress indicators */
+.tutorial-progress-dot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tutorial-progress-dot.active {
+    background-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Quiz result animations */
+.quiz-result-card {
+    animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive quiz layout */
+@media (max-width: 768px) {
+    #quizGame .bg-white {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    #quizGame h2 {
+        font-size: 1.5rem;
+    }
+    
+    #quizAnswer {
+        min-height: 60px;
+    }
+    
+    .quiz-type-card {
+        padding: 1rem;
+    }
+    
+    .quiz-type-card h3 {
+        font-size: 0.9rem;
+    }
+    
+    .quiz-type-card p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Stats page responsive */
+@media (max-width: 768px) {
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    #weeklyHeatmap {
+        gap: 0.25rem;
+    }
+    
+    #weeklyHeatmap .w-8 {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Search highlight styles */
+mark {
+    background-color: #fef08a;
+    color: #92400e;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+[data-theme="dark"] mark {
+    background-color: #451a03;
+    color: #fbbf24;
+}
+
+/* Search filters animation */
+#searchFilters {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+#searchFilters.hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+#searchFilters:not(.hidden) {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* Search results info */
+#searchResults {
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* Search input focus */
+#searchInput:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-color);
+}
+
+/* Filter buttons */
+#toggleFiltersBtn {
+    transition: all 0.2s ease;
+}
+
+#toggleFiltersBtn:hover {
+    transform: translateY(-1px);
+}
+
+/* Search result cards */
+.search-result-card {
+    transition: all 0.2s ease;
+}
+
+.search-result-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

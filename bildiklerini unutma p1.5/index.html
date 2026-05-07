@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaced Repetition Learning App</title>
+    <meta name="description" content="Learn words using spaced repetition and Ebbinghaus forgetting curve">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SpacedRep">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96">
+            <h1 class="text-2xl font-bold text-center mb-6">Spaced Repetition App</h1>
+            <div class="space-y-4">
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="Enter username" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <button 
+                    onclick="login()" 
+                    class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                >
+                    Login / Register
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Learning Dashboard</h1>
+                <div class="flex items-center gap-4">
+                    <span id="currentUser" class="text-gray-600"></span>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 py-8">
+            <!-- Navigation Tabs -->
+            <div class="mb-8">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-button active">Dashboard</button>
+                        <button onclick="showTab('folders')" id="foldersTab" class="tab-button">My Folders</button>
+                        <button onclick="showTab('quiz')" id="quizTab" class="tab-button">Quiz</button>
+                        <button onclick="showTab('stats')" id="statsTab" class="tab-button">Statistics</button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboardContent" class="tab-content">
+                <!-- Notifications -->
+                <div id="notificationsArea" class="mb-6"></div>
+                
+                <!-- Reviews Due Today -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Reviews Due Today</h2>
+                    <div id="reviewsList" class="space-y-2"></div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-2">Total Words</h3>
+                        <p id="totalWords" class="text-3xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-2">Due Today</h3>
+                        <p id="dueToday" class="text-3xl font-bold text-red-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-2">Mastered</h3>
+                        <p id="masteredWords" class="text-3xl font-bold text-green-600">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Folders Tab -->
+            <div id="foldersContent" class="tab-content hidden">
+                <!-- Create Folder -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Create New Folder</h2>
+                    <div class="flex gap-4">
+                        <input 
+                            type="text" 
+                            id="folderNameInput" 
+                            placeholder="Enter folder name" 
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                        <button 
+                            onclick="createFolder()" 
+                            class="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                        >
+                            Create Folder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Folders List -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">My Folders</h2>
+                    <div id="foldersList" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Quiz Tab -->
+            <div id="quizContent" class="tab-content hidden">
+                <div id="quizArea" class="bg-white rounded-lg shadow-md p-6"></div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="statsContent" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Learning Progress</h2>
+                    <canvas id="forgettingCurveChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Word Management Modal -->
+    <div id="wordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 id="modalTitle" class="text-lg font-semibold mb-4"></h3>
+            <div class="space-y-4">
+                <input 
+                    type="text" 
+                    id="wordInput" 
+                    placeholder="Enter word/term" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <textarea 
+                    id="definitionInput" 
+                    placeholder="Enter definition/meaning" 
+                    rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ></textarea>
+                <select 
+                    id="wordDifficultySelect" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <div class="flex gap-4">
+                    <button 
+                        onclick="saveWord()" 
+                        class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                    >
+                        Save Word
+                    </button>
+                    <button 
+                        onclick="closeWordModal()" 
+                        class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

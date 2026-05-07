@@ -1,0 +1,29 @@
+{
+  "name": "bildiklerini-unutma",
+  "version": "1.0.0",
+  "description": "Aralıklı tekrar yöntemi ile kalıcı öğrenme uygulaması",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000",
+    "build": "echo 'No build step required for static app'",
+    "deploy": "netlify deploy --prod --dir ."
+  },
+  "keywords": [
+    "spaced-repetition",
+    "learning",
+    "flashcards",
+    "memory",
+    "education",
+    "pwa",
+    "jsonbin",
+    "cloud-storage"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "akilda-kal",
+  "version": "2.0.0",
+  "description": "Aralıklı tekrar yöntemi ile kelime öğrenme uygulaması - Güvenli versiyon",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "test": "node --test tests/**/*.test.js",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "spaced-repetition",
+    "learning",
+    "vocabulary",
+    "pwa",
+    "education"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

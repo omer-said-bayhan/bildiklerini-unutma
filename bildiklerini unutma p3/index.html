@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bildiklerini Unutma</title>
+    <meta name="description" content="Aralıklı tekrar yöntemi ile bildiklerini unutma uygulaması">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzM3ODJmNiIvPjxwYXRoIGQ9Ik0xMjggNjRjLTE0IDAtMjUtMTEtMjUtMjVWMTczYzAgMTQgMTQgMTQgMTQgMTRoS3oiIGZpbGw9IndoaXRlIi8+PC9zdmc+">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Dark Mode Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-card: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --accent-color: #3b82f6;
+            --input-bg: #ffffff;
+            --input-text: #1f2937;
+            --input-border: #d1d5db;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-card: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #4b5563;
+            --accent-color: #60a5fa;
+            --input-bg: #374151;
+            --input-text: #f9fafb;
+            --input-border: #6b7280;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Input ve textarea stilleri */
+        input, textarea, select {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--input-border) !important;
+            transition: all 0.3s ease;
+        }
+        input::placeholder, textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        /* Select option stilleri */
+        select option {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+        }
+
+        .bg-white { background-color: var(--bg-card) !important; }
+        .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+        .bg-gray-50 { background-color: var(--bg-secondary) !important; }
+        .text-gray-800 { color: var(--text-primary) !important; }
+        .text-gray-600 { color: var(--text-secondary) !important; }
+        .text-gray-500 { color: var(--text-secondary) !important; }
+        .border-gray-200 { border-color: var(--border-color) !important; }
+        .border-gray-300 { border-color: var(--border-color) !important; }
+
+        .tab-button {
+            @apply py-2 px-1 border-b-2 border-transparent text-sm font-medium;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .tab-button:hover {
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        .tab-button.active {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* Dark Mode Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Language Toggle Button */
+        .language-toggle {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .language-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Folder hierarchy styles */
+        .folder-item {
+            transition: all 0.2s ease;
+        }
+        
+        .folder-item:hover {
+            transform: translateX(2px);
+        }
+        
+        .folder-hierarchy-line {
+            border-left: 2px solid var(--border-color);
+            margin-left: 10px;
+            padding-left: 10px;
+        }
+        /* Tutorial overlay styles */
+        #tutorialOverlay {
+            backdrop-filter: blur(2px);
+        }
+        
+        .tutorial-highlight {
+            position: relative;
+            z-index: 60;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3), 0 0 30px rgba(59, 130, 246, 0.5); }
+        }
+        
+        .tutorial-progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            transition: all 0.3s ease;
+        }
+        
+        .tutorial-progress-dot.active {
+            background-color: #3b82f6;
+            transform: scale(1.2);
+        }
+
+        /* Quiz textarea özel stilleri */
+        #quizAnswer {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        #quizAnswer::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7;
+        }
+
+        #quizAnswer:focus {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+        }
+        /* Modal input stilleri */
+        #wordModal input, #wordModal textarea, #wordModal select {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        #wordModal input::placeholder, #wordModal textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7;
+        }
+
+        /* Button hover effects */
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Folder expand/collapse animation */
+        .folder-item .p-3 {
+            transition: all 0.3s ease;
+        }
+
+        .folder-item:hover .p-3 {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container { padding-left: 1rem; padding-right: 1rem; }
+            .tab-button { font-size: 0.875rem; padding: 0.5rem; }
+            .grid-cols-3 { grid-template-columns: 1fr; }
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+            .language-toggle {
+                top: 60px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            /* Mobile folder hierarchy adjustments */
+            .folder-item {
+                margin-left: 0 !important;
+            }
+            
+            .folder-item .p-3 {
+                padding: 0.5rem;
+            }
+
+            /* Mobile button adjustments */
+            .flex.gap-1 button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Tema Değiştir">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <!-- Language Toggle -->
+    <div class="language-toggle" onclick="toggleLanguage()" title="Dil Değiştir">
+        <span id="languageIcon">🇹🇷</span>
+    </div>
+
+    <!-- Tanıtım Turu Overlay -->
+    <div id="tutorialOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+                <div class="text-center">
+                    <div id="tutorialStep" class="mb-4">
+                        <!-- Tutorial steps will be inserted here -->
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button id="tutorialPrev" onclick="previousTutorialStep()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50" disabled>
+                            ← Geri
+                        </button>
+                        <div id="tutorialProgress" class="flex space-x-2">
+                            <!-- Progress dots will be inserted here -->
+                        </div>
+                        <button id="tutorialNext" onclick="nextTutorialStep()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                            İleri →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana Uygulama -->
+    <div id="mainApp">
+        <!-- Başlık -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">📚 Bildiklerini Unutma</h1>
+                <div class="flex items-center gap-2">
+                    <span id="currentUser" class="text-gray-600 text-sm">Misafir Kullanıcı</span>
+                </div>
+            </div>
+        </div>
+        <div class="container mx-auto px-4 py-6">
+            <!-- Navigasyon Sekmeleri -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-4">
+                        <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-button active">Ana Sayfa</button>
+                        <button onclick="showTab('folders')" id="foldersTab" class="tab-button">Klasörler</button>
+                        <button onclick="showTab('quiz')" id="quizTab" class="tab-button">Quiz</button>
+                        <button onclick="showTab('stats')" id="statsTab" class="tab-button">İstatistik</button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Ana Sayfa Sekmesi -->
+            <div id="dashboardContent" class="tab-content">
+                <!-- Bildirimler -->
+                <div id="notificationsArea" class="mb-4"></div>
+                
+                <!-- Bugün Tekrar Edilecekler -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">🔔 Bugün Tekrar Edilecekler</h2>
+                    <div id="reviewsList" class="space-y-2"></div>
+                </div>
+
+                <!-- Hızlı İstatistikler -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="streakTitle">🔥 Günlük Seri</h3>
+                        <p id="streakCount" class="text-2xl font-bold text-orange-600">0</p>
+                        <p class="text-xs text-gray-500" id="streakText">gün</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="totalWordsTitle">Toplam Kelime</h3>
+                        <p id="totalWords" class="text-2xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="dueTodayTitle">Bugün Tekrar</h3>
+                        <p id="dueToday" class="text-2xl font-bold text-red-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-sm font-semibold mb-2" id="masteredTitle">Öğrenilen</h3>
+                        <p id="masteredWords" class="text-2xl font-bold text-green-600">0</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Klasörler Sekmesi -->
+            <div id="foldersContent" class="tab-content hidden">
+                <!-- Klasör Oluştur -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">📁 Yeni Klasör Oluştur</h2>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="folderNameInput" 
+                            placeholder="Klasör adı girin" 
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                        <button 
+                            onclick="createFolder()" 
+                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                        >
+                            Oluştur
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Klasör Listesi -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-4">📂 Klasörlerim</h2>
+                    <div id="foldersList" class="space-y-3"></div>
+                </div>
+            </div>
+            <!-- Quiz Sekmesi -->
+            <div id="quizContent" class="tab-content hidden">
+                <!-- Quiz İstatistikleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <h2 class="text-lg font-semibold mb-3">📊 Quiz İstatistikleri</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div class="p-2 bg-blue-50 rounded-lg">
+                            <div class="text-lg font-bold text-blue-600" id="totalQuizzes">0</div>
+                            <div class="text-xs text-gray-600" id="totalQuizzesLabel">Toplam Quiz</div>
+                        </div>
+                        <div class="p-2 bg-green-50 rounded-lg">
+                            <div class="text-lg font-bold text-green-600" id="averageScore">0%</div>
+                            <div class="text-xs text-gray-600" id="averageScoreLabel">Ortalama</div>
+                        </div>
+                        <div class="p-2 bg-purple-50 rounded-lg">
+                            <div class="text-lg font-bold text-purple-600" id="bestStreak">0</div>
+                            <div class="text-xs text-gray-600" id="bestStreakLabel">En İyi Seri</div>
+                        </div>
+                        <div class="p-2 bg-orange-50 rounded-lg">
+                            <div class="text-lg font-bold text-orange-600" id="todayQuizzes">0</div>
+                            <div class="text-xs text-gray-600" id="todayQuizzesLabel">Bugün</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Türleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <h2 class="text-lg font-semibold mb-4">🎮 Quiz Türleri</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button onclick="startQuickQuiz()" class="p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="quickQuizTitle">⚡ Hızlı Quiz</div>
+                                    <div class="text-sm opacity-90" id="quickQuizDesc">5 rastgele kelime</div>
+                                </div>
+                                <div class="text-2xl">🚀</div>
+                            </div>
+                        </button>
+                        <button onclick="startDifficultyQuiz()" class="p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="difficultyQuizTitle">🔥 Zorluk Quiz</div>
+                                    <div class="text-sm opacity-90" id="difficultyQuizDesc">Zor kelimeler</div>
+                                </div>
+                                <div class="text-2xl">💪</div>
+                            </div>
+                        </button>
+                        <button onclick="startReviewQuiz()" class="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="reviewQuizTitle">🔄 Tekrar Quiz</div>
+                                    <div class="text-sm opacity-90" id="reviewQuizDesc">Unutulan kelimeler</div>
+                                </div>
+                                <div class="text-2xl">🎯</div>
+                            </div>
+                        </button>
+                        <button onclick="startMasteryQuiz()" class="p-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 text-left">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold" id="masteryQuizTitle">👑 Ustalık Quiz</div>
+                                    <div class="text-sm opacity-90" id="masteryQuizDesc">Öğrenilen kelimeler</div>
+                                </div>
+                                <div class="text-2xl">🏆</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Seçenekleri -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">📁 Klasör Bazlı Quiz</h2>
+                    <div id="quizOptions" class="space-y-2"></div>
+                </div>
+                
+                <!-- Quiz Alanı -->
+                <div id="quizArea" class="bg-white rounded-lg shadow-md p-4"></div>
+            </div>
+            <!-- İstatistik Sekmesi -->
+            <div id="statsContent" class="tab-content hidden">
+                <!-- Genel İstatistikler -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">📚</div>
+                        <div class="text-2xl font-bold text-blue-600" id="statTotalWords">0</div>
+                        <div class="text-xs text-gray-500" id="statTotalWordsLabel">Toplam Kelime</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">✅</div>
+                        <div class="text-2xl font-bold text-green-600" id="statMasteredWords">0</div>
+                        <div class="text-xs text-gray-500" id="statMasteredWordsLabel">Öğrenilen</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">🔥</div>
+                        <div class="text-2xl font-bold text-orange-600" id="statCurrentStreak">0</div>
+                        <div class="text-xs text-gray-500" id="statCurrentStreakLabel">Günlük Seri</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                        <div class="text-2xl mb-2">🎯</div>
+                        <div class="text-2xl font-bold text-purple-600" id="statAccuracy">0%</div>
+                        <div class="text-xs text-gray-500" id="statAccuracyLabel">Doğruluk</div>
+                    </div>
+                </div>
+
+                <!-- Haftalık Aktivite -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📅</span>
+                        <span id="weeklyActivityTitle">Haftalık Aktivite</span>
+                    </h3>
+                    <div class="grid grid-cols-7 gap-2 mb-2">
+                        <div class="text-center text-xs text-gray-500">Pzt</div>
+                        <div class="text-center text-xs text-gray-500">Sal</div>
+                        <div class="text-center text-xs text-gray-500">Çar</div>
+                        <div class="text-center text-xs text-gray-500">Per</div>
+                        <div class="text-center text-xs text-gray-500">Cum</div>
+                        <div class="text-center text-xs text-gray-500">Cmt</div>
+                        <div class="text-center text-xs text-gray-500">Paz</div>
+                    </div>
+                    <div id="weeklyActivityGrid" class="grid grid-cols-7 gap-2">
+                        <!-- Activity squares will be generated here -->
+                    </div>
+                    <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+                        <span>Az</span>
+                        <div class="flex gap-1">
+                            <div class="w-3 h-3 bg-gray-200 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-200 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-600 rounded-sm"></div>
+                            <div class="w-3 h-3 bg-green-800 rounded-sm"></div>
+                        </div>
+                        <span>Çok</span>
+                    </div>
+                </div>
+                <!-- Klasör Performansı -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">📁</span>
+                        <span id="folderPerformanceTitle">Klasör Performansı</span>
+                    </h3>
+                    <div id="folderPerformanceList" class="space-y-3">
+                        <!-- Folder performance items will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Zorluk Dağılımı -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">⚖️</span>
+                        <span id="difficultyDistributionTitle">Zorluk Dağılımı</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😊</span>
+                                <span class="text-sm" id="easyLabel">Kolay</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="easyBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="easyCount" class="text-sm font-semibold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😐</span>
+                                <span class="text-sm" id="mediumLabel">Orta</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="mediumBar" class="bg-yellow-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="mediumCount" class="text-sm font-semibold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">😰</span>
+                                <span class="text-sm" id="hardLabel">Zor</span>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div id="hardBar" class="bg-red-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <span id="hardCount" class="text-sm font-semibold">0</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Son Aktiviteler -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="mr-2">⏰</span>
+                        <span id="recentActivityTitle">Son Aktiviteler</span>
+                    </h3>
+                    <div id="recentActivityList" class="space-y-2">
+                        <!-- Recent activities will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kelime Yönetimi Modal -->
+    <div id="wordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg p-4 w-full max-w-md">
+            <h3 id="modalTitle" class="text-lg font-semibold mb-4"></h3>
+            <div class="space-y-3">
+                <input 
+                    type="text" 
+                    id="wordInput" 
+                    placeholder="Kelime/terim girin" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <textarea 
+                    id="definitionInput" 
+                    placeholder="Anlamını/açıklamasını girin" 
+                    rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ></textarea>
+                <select 
+                    id="wordLanguageSelect" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="en">🇺🇸 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="ku">🟡 Kurdî</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                    <option value="tr">🇹🇷 Türkçe</option>
+                </select>
+                <select 
+                    id="wordDifficultySelect" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="easy">Kolay</option>
+                    <option value="medium">Orta</option>
+                    <option value="hard">Zor</option>
+                </select>
+                <div class="flex gap-2">
+                    <button 
+                        onclick="saveWord()" 
+                        class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                        id="saveWordBtn"
+                    >
+                        Kaydet
+                    </button>
+                    <button 
+                        onclick="closeWordModal()" 
+                        class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                        id="cancelWordBtn"
+                    >
+                        İptal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Global değişkenler
+        let currentUser = 'guest'; // Misafir kullanıcı
+        let userData = {};
+        let currentQuiz = null;
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let currentFolderId = null;
+        let currentWordId = null;
+        let currentQuizFolder = null;
+
+        // Dark Mode
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Dil sistemi - Arayüz dilleri
+        let currentLanguage = localStorage.getItem('appLanguage') || 'tr';
+        
+        const translations = {
+            tr: {
+                appTitle: "Bildiklerini Unutma",
+                dashboard: "Ana Sayfa",
+                folders: "Klasörler",
+                quiz: "Quiz",
+                stats: "İstatistik",
+                todayReviews: "Bugün Tekrar Edilecekler",
+                totalWords: "Toplam Kelime",
+                todayDue: "Bugün Tekrar",
+                mastered: "Öğrenilen",
+                streak: "Günlük Seri",
+                streakDays: "gün",
+                streakStart: "Başla!",
+                createFolder: "Yeni Klasör Oluştur",
+                folderName: "Klasör adı girin",
+                create: "Oluştur",
+                myFolders: "Klasörlerim",
+                addWord: "Yeni Kelime Ekle",
+                backToFolders: "← Klasörlere Dön",
+                word: "Kelime/terim girin",
+                definition: "Anlamını/açıklamasını girin",
+                difficulty: "Zorluk",
+                easy: "Kolay",
+                medium: "Orta",
+                hard: "Zor",
+                save: "Kaydet",
+                cancel: "İptal",
+                edit: "Düzenle",
+                delete: "Sil",
+                open: "Aç",
+                editWord: "Kelimeyi Düzenle",
+                addNewWord: "Yeni Kelime Ekle",
+                quizStats: "Quiz İstatistikleri",
+                totalQuizzes: "Toplam Quiz",
+                averageScore: "Ortalama",
+                bestStreak: "En İyi Seri",
+                todayQuizzes: "Bugün",
+                quizTypes: "Quiz Türleri",
+                quickQuiz: "Hızlı Quiz",
+                quickQuizDesc: "5 rastgele kelime",
+                difficultyQuiz: "Zorluk Quiz",
+                difficultyQuizDesc: "Zor kelimeler",
+                reviewQuiz: "Tekrar Quiz",
+                reviewQuizDesc: "Unutulan kelimeler",
+                masteryQuiz: "Ustalık Quiz",
+                masteryQuizDesc: "Öğrenilen kelimeler",
+                folderBasedQuiz: "Klasör Bazlı Quiz",
+                selectQuiz: "Quiz Seç",
+                quizComplete: "Quiz Tamamlandı!",
+                correct: "Doğru",
+                incorrect: "Yanlış",
+                correctAnswer: "Doğru Cevap:",
+                yourAnswer: "Sizin Cevabınız:",
+                newQuiz: "Yeni Quiz Seç",
+                sameFolder: "Aynı Klasörden Tekrar",
+                howDifficult: "Bu soru sizin için ne kadar zordu?",
+                easyEmoji: "😊 Kolay",
+                mediumEmoji: "😐 Orta",
+                hardEmoji: "😰 Zor"
+            }
+        };
+
+        // Çeviri fonksiyonu
+        function t(key) {
+            return translations[currentLanguage][key] || translations['tr'][key] || key;
+        }
+        // Kelime dilleri (öğrenilen kelimeler için)
+        const wordLanguages = {
+            'tr': { name: 'Türkçe', flag: '🇹🇷' },
+            'en': { name: 'İngilizce', flag: '🇺🇸' },
+            'fr': { name: 'Fransızca', flag: '🇫🇷' },
+            'ko': { name: 'Korece', flag: '🇰🇷' },
+            'ku': { name: 'Kürtçe', flag: '🟡' },
+            'es': { name: 'İspanyolca', flag: '🇪🇸' },
+            'ar': { name: 'Arapça', flag: '🇸🇦' }
+        };
+
+        // Zorluk ayarları
+        const difficultySettings = { easy: 5, medium: 3, hard: 1 };
+        const reviewIntervals = [1, 3, 7, 30, 90, 180];
+
+        // Dark Mode Functions
+        function initTheme() {
+            if (isDarkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            initTheme();
+            
+            // Tema değiştiğinde bildiri göster
+            showNotification(isDarkMode ? '🌙 Karanlık tema aktif!' : '☀️ Aydınlık tema aktif!', 'success');
+        }
+
+        // Language Functions
+        const languageFlags = {
+            'tr': '🇹🇷',
+            'en': '🇺🇸', 
+            'fr': '🇫🇷',
+            'es': '🇪🇸',
+            'ar': '🇸🇦'
+        };
+
+        const languageOrder = ['tr', 'en', 'fr', 'es', 'ar'];
+
+        function initLanguage() {
+            document.getElementById('languageIcon').textContent = languageFlags[currentLanguage];
+            updateAllTexts();
+        }
+
+        function toggleLanguage() {
+            const currentIndex = languageOrder.indexOf(currentLanguage);
+            const nextIndex = (currentIndex + 1) % languageOrder.length;
+            currentLanguage = languageOrder[nextIndex];
+            
+            localStorage.setItem('appLanguage', currentLanguage);
+            initLanguage();
+            
+            showNotification(`${languageFlags[currentLanguage]} Dil değiştirildi!`, 'success');
+        }
+        function updateAllTexts() {
+            // Ana başlık
+            const mainTitle = document.querySelector('#mainApp h1');
+            if (mainTitle) mainTitle.textContent = `📚 ${t('appTitle')}`;
+            
+            // Sekmeler
+            const dashboardTab = document.getElementById('dashboardTab');
+            if (dashboardTab) dashboardTab.textContent = t('dashboard');
+            
+            const foldersTab = document.getElementById('foldersTab');
+            if (foldersTab) foldersTab.textContent = t('folders');
+            
+            const quizTab = document.getElementById('quizTab');
+            if (quizTab) quizTab.textContent = t('quiz');
+            
+            const statsTab = document.getElementById('statsTab');
+            if (statsTab) statsTab.textContent = t('stats');
+            
+            // Ana sayfa başlıkları
+            const streakTitle = document.getElementById('streakTitle');
+            if (streakTitle) streakTitle.textContent = `🔥 ${t('streak')}`;
+            
+            const totalWordsTitle = document.getElementById('totalWordsTitle');
+            if (totalWordsTitle) totalWordsTitle.textContent = t('totalWords');
+            
+            const dueTodayTitle = document.getElementById('dueTodayTitle');
+            if (dueTodayTitle) dueTodayTitle.textContent = t('todayDue');
+            
+            const masteredTitle = document.getElementById('masteredTitle');
+            if (masteredTitle) masteredTitle.textContent = t('mastered');
+            
+            // Render fonksiyonlarını çağır
+            renderDashboard();
+            renderFolders();
+            renderQuizArea();
+        }
+
+        // Sayfa yüklendiğinde tema ve dil uygula
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            initLanguage();
+            loadUserData();
+            renderAll();
+        });
+
+        // Veri yönetimi
+        function loadUserData() {
+            const savedData = localStorage.getItem(`spacedRepetition_${currentUser}`);
+            if (savedData) {
+                userData = JSON.parse(savedData);
+            } else {
+                userData = {
+                    folders: [],
+                    words: [],
+                    stats: { 
+                        totalWords: 0, 
+                        masteredWords: 0, 
+                        reviewsCompleted: 0,
+                        streak: 0,
+                        lastStudyDate: null,
+                        studyDates: [],
+                        totalQuizzes: 0,
+                        averageScore: 0,
+                        bestStreak: 0,
+                        todayQuizzes: 0,
+                        activities: []
+                    }
+                };
+            }
+            
+            // Eski veri yapısını yeni hiyerarşik yapıya dönüştür
+            migrateToHierarchicalFolders();
+            
+            // Streak hesapla
+            calculateStreak();
+        }
+
+        // Eski klasör yapısını hiyerarşik yapıya dönüştür
+        function migrateToHierarchicalFolders() {
+            userData.folders.forEach(folder => {
+                if (!folder.parentId) folder.parentId = null;
+                if (!folder.level) folder.level = 0;
+                if (!folder.isExpanded) folder.isExpanded = true;
+            });
+        }
+
+        // Streak hesaplama
+        function calculateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastStudyDate = userData.stats.lastStudyDate;
+            
+            if (!lastStudyDate) {
+                userData.stats.streak = 0;
+                return;
+            }
+            
+            const daysDiff = getDaysBetween(lastStudyDate, today);
+            
+            if (daysDiff === 0) {
+                // Bugün zaten çalışmış
+                return;
+            } else if (daysDiff === 1) {
+                // Dün çalışmış, streak devam ediyor
+                return;
+            } else {
+                // Streak kırılmış
+                userData.stats.streak = 0;
+            }
+        }
+        // Günlük çalışma kaydı
+        function recordStudySession() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastStudyDate = userData.stats.lastStudyDate;
+            
+            if (lastStudyDate !== today) {
+                // Bugün ilk defa çalışıyor
+                const daysDiff = lastStudyDate ? getDaysBetween(lastStudyDate, today) : 999;
+                
+                if (daysDiff === 1) {
+                    // Dün de çalışmış, streak artır
+                    userData.stats.streak++;
+                } else if (daysDiff > 1 || !lastStudyDate) {
+                    // Streak kırılmış veya ilk defa, yeniden başla
+                    userData.stats.streak = 1;
+                }
+                
+                userData.stats.lastStudyDate = today;
+                
+                // Çalışma tarihlerini kaydet (son 30 gün)
+                if (!userData.stats.studyDates) userData.stats.studyDates = [];
+                userData.stats.studyDates.push(today);
+                userData.stats.studyDates = userData.stats.studyDates.slice(-30);
+                
+                saveUserData();
+                
+                // Streak bildirimi
+                if (userData.stats.streak > 1) {
+                    showNotification(`🔥 Harika! ${userData.stats.streak} günlük serin devam ediyor!`, 'success');
+                } else {
+                    showNotification(`🎯 Günlük çalışma serine başladın!`, 'success');
+                }
+            }
+        }
+
+        function saveUserData() {
+            localStorage.setItem(`spacedRepetition_${currentUser}`, JSON.stringify(userData));
+        }
+
+        // Sekme yönetimi
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            if (tabName === 'dashboard') renderDashboard();
+            else if (tabName === 'folders') renderFolders();
+            else if (tabName === 'quiz') renderQuizArea();
+            else if (tabName === 'stats') renderStats();
+        }
+
+        // Klasör yönetimi
+        function createFolder(parentId = null) {
+            const folderName = document.getElementById('folderNameInput').value.trim();
+            if (!folderName) {
+                alert(t('folderName'));
+                return;
+            }
+            
+            const parentFolder = parentId ? userData.folders.find(f => f.id === parentId) : null;
+            const level = parentFolder ? parentFolder.level + 1 : 0;
+            
+            const newFolder = {
+                id: Date.now(),
+                name: folderName,
+                parentId: parentId,
+                level: level,
+                isExpanded: true,
+                createdDate: new Date().toISOString().split('T')[0],
+                wordCount: 0
+            };
+            
+            userData.folders.push(newFolder);
+            saveUserData();
+            document.getElementById('folderNameInput').value = '';
+            renderFolders();
+            
+            // Aktivite kaydet
+            recordActivity('folder_created', `"${folderName}" klasörü oluşturuldu`);
+        }
+        function createSubFolder(parentId) {
+            const folderName = prompt(t('folderName'));
+            if (!folderName || !folderName.trim()) return;
+            
+            const parentFolder = userData.folders.find(f => f.id === parentId);
+            const level = parentFolder ? parentFolder.level + 1 : 0;
+            
+            const newFolder = {
+                id: Date.now(),
+                name: folderName.trim(),
+                parentId: parentId,
+                level: level,
+                isExpanded: true,
+                createdDate: new Date().toISOString().split('T')[0],
+                wordCount: 0
+            };
+            
+            userData.folders.push(newFolder);
+            
+            // Ana klasörü genişletilmiş olarak işaretle
+            if (parentFolder) {
+                parentFolder.isExpanded = true;
+            }
+            
+            saveUserData();
+            renderFolders();
+            showNotification(`📁 Alt klasör "${folderName}" oluşturuldu!`, 'success');
+        }
+
+        function toggleFolder(folderId) {
+            const folder = userData.folders.find(f => f.id === folderId);
+            if (folder) {
+                folder.isExpanded = !folder.isExpanded;
+                saveUserData();
+                renderFolders();
+            }
+        }
+
+        function getFolderPath(folderId) {
+            const path = [];
+            let currentFolder = userData.folders.find(f => f.id === folderId);
+            
+            while (currentFolder) {
+                path.unshift(currentFolder.name);
+                currentFolder = currentFolder.parentId ? 
+                    userData.folders.find(f => f.id === currentFolder.parentId) : null;
+            }
+            
+            return path.join(' > ');
+        }
+
+        function getFolderWordCount(folderId, includeSubfolders = true) {
+            let count = userData.words.filter(w => w.folderId === folderId).length;
+            
+            if (includeSubfolders) {
+                const subfolders = userData.folders.filter(f => f.parentId === folderId);
+                subfolders.forEach(subfolder => {
+                    count += getFolderWordCount(subfolder.id, true);
+                });
+            }
+            
+            return count;
+        }
+
+        function deleteFolder(folderId) {
+            const folder = userData.folders.find(f => f.id === folderId);
+            if (!folder) return;
+            
+            const subfolders = userData.folders.filter(f => f.parentId === folderId);
+            const totalWords = getFolderWordCount(folderId, true);
+            
+            let confirmMessage = `${t('delete')} "${folder.name}"?`;
+            if (subfolders.length > 0) {
+                confirmMessage += `\n\n⚠️ Bu klasörde ${subfolders.length} alt klasör var.`;
+            }
+            if (totalWords > 0) {
+                confirmMessage += `\n📝 Toplam ${totalWords} kelime silinecek.`;
+            }
+            confirmMessage += '\n\nTüm alt klasörler ve kelimeler kalıcı olarak silinecek!';
+            
+            if (confirm(confirmMessage)) {
+                // Alt klasörleri ve kelimelerini sil (recursive)
+                deleteFolderRecursive(folderId);
+                saveUserData();
+                renderFolders();
+                renderDashboard();
+                showNotification(`🗑️ "${folder.name}" ve tüm içeriği silindi.`, 'success');
+            }
+        }
+
+        function deleteFolderRecursive(folderId) {
+            // Alt klasörleri bul ve sil
+            const subfolders = userData.folders.filter(f => f.parentId === folderId);
+            subfolders.forEach(subfolder => {
+                deleteFolderRecursive(subfolder.id);
+            });
+            
+            // Bu klasördeki kelimeleri sil
+            userData.words = userData.words.filter(w => w.folderId !== folderId);
+            
+            // Klasörü sil
+            userData.folders = userData.folders.filter(f => f.id !== folderId);
+        }
+        function openFolder(folderId) {
+            currentFolderId = folderId;
+            const folder = userData.folders.find(f => f.id === folderId);
+            if (!folder) return;
+
+            const folderWords = userData.words.filter(w => w.folderId === folderId);
+            const subfolders = userData.folders.filter(f => f.parentId === folderId);
+            const folderPath = getFolderPath(folderId);
+            const foldersList = document.getElementById('foldersList');
+            
+            foldersList.innerHTML = `
+                <div class="mb-4">
+                    <button onclick="renderFolders()" class="text-blue-500 hover:text-blue-700 text-sm">${t('backToFolders')}</button>
+                    <div class="mt-2">
+                        <div class="text-xs text-gray-500 mb-1">📍 ${folderPath}</div>
+                        <h3 class="text-lg font-semibold">${folder.name}</h3>
+                        <div class="text-sm text-gray-600">
+                            ${folderWords.length} kelime 
+                            ${subfolders.length > 0 ? `• ${subfolders.length} alt klasör` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="openWordModal(${folderId})" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm flex items-center">
+                            <span class="mr-1">📝</span>
+                            ${t('addWord')}
+                        </button>
+                        <button onclick="createSubFolder(${folderId})" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm flex items-center">
+                            <span class="mr-1">📁</span>
+                            Alt Klasör Ekle
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <h4 class="text-sm font-medium flex items-center">
+                        <span class="mr-2">📝</span>
+                        Kelimeler (${folderWords.length})
+                    </h4>
+                    ${folderWords.length === 0 ? 
+                        `<p class="text-gray-500 text-sm">Bu klasörde henüz kelime yok.</p>` :
+                        folderWords.map(word => {
+                            const today = new Date().toISOString().split('T')[0];
+                            const isDue = word.nextReviewDate <= today;
+                            const daysSinceLastReview = word.lastReviewDate 
+                                ? getDaysBetween(word.lastReviewDate, today)
+                                : getDaysBetween(word.createdDate, today);
+                            const retentionScore = calculateRetentionScore(daysSinceLastReview, word.difficulty);
+                            const retentionPercentage = Math.round(retentionScore * 100);
+                            
+                            return `
+                                <div class="p-3 border border-gray-200 rounded-md ${isDue ? 'bg-yellow-50' : 'bg-gray-50'}">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="font-medium text-sm">
+                                                ${word.language ? wordLanguages[word.language]?.flag || '🌐' : '🌐'} ${word.word}
+                                            </div>
+                                            <div class="text-xs text-gray-600 mt-1">${word.definition}</div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                ${word.language ? wordLanguages[word.language]?.name || 'Bilinmeyen' : 'Bilinmeyen'} | ${word.difficulty} | Tekrar: ${word.reviewCount} | Hatırlama: ${retentionPercentage}%
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-1 ml-2">
+                                            <button onclick="editWord(${word.id})" class="px-2 py-1 bg-gray-500 text-white rounded text-xs">${t('edit')}</button>
+                                            <button onclick="deleteWord(${word.id})" class="px-2 py-1 bg-red-500 text-white rounded text-xs">${t('delete')}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+            `;
+        }
+        // Kelime yönetimi
+        function openWordModal(folderId, wordId = null) {
+            currentFolderId = folderId;
+            currentWordId = wordId;
+            const modal = document.getElementById('wordModal');
+            const title = document.getElementById('modalTitle');
+            const wordInput = document.getElementById('wordInput');
+            const definitionInput = document.getElementById('definitionInput');
+            const languageSelect = document.getElementById('wordLanguageSelect');
+            const difficultySelect = document.getElementById('wordDifficultySelect');
+            
+            if (wordId) {
+                const word = userData.words.find(w => w.id === wordId);
+                title.textContent = t('editWord');
+                wordInput.value = word.word;
+                definitionInput.value = word.definition;
+                languageSelect.value = word.language || 'en';
+                difficultySelect.value = word.difficulty;
+            } else {
+                title.textContent = t('addNewWord');
+                wordInput.value = '';
+                definitionInput.value = '';
+                languageSelect.value = 'en';
+                difficultySelect.value = 'medium';
+            }
+            
+            // Update placeholders
+            wordInput.placeholder = t('word');
+            definitionInput.placeholder = t('definition');
+            
+            // Update difficulty options
+            const difficultyOptions = difficultySelect.querySelectorAll('option');
+            difficultyOptions[0].textContent = t('easy');
+            difficultyOptions[1].textContent = t('medium');
+            difficultyOptions[2].textContent = t('hard');
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('wordModal').classList.add('hidden');
+            currentFolderId = null;
+            currentWordId = null;
+        }
+
+        function saveWord() {
+            const word = document.getElementById('wordInput').value.trim();
+            const definition = document.getElementById('definitionInput').value.trim();
+            const language = document.getElementById('wordLanguageSelect').value;
+            const difficulty = document.getElementById('wordDifficultySelect').value;
+            
+            if (!word || !definition) {
+                alert('Kelime ve anlamı gerekli');
+                return;
+            }
+            
+            if (currentWordId) {
+                const wordObj = userData.words.find(w => w.id === currentWordId);
+                wordObj.word = word;
+                wordObj.definition = definition;
+                wordObj.language = language;
+                wordObj.difficulty = difficulty;
+                
+                recordActivity('word_updated', `"${word}" kelimesi güncellendi`);
+            } else {
+                const newWord = {
+                    id: Date.now(),
+                    folderId: currentFolderId,
+                    word: word,
+                    definition: definition,
+                    language: language,
+                    difficulty: difficulty,
+                    reviewCount: 0,
+                    lastReviewDate: null,
+                    nextReviewDate: new Date().toISOString().split('T')[0],
+                    createdDate: new Date().toISOString().split('T')[0],
+                    mastered: false
+                };
+                userData.words.push(newWord);
+                userData.stats.totalWords++;
+                const folder = userData.folders.find(f => f.id === currentFolderId);
+                if (folder) {
+                    folder.wordCount = userData.words.filter(w => w.folderId === currentFolderId).length;
+                }
+                
+                recordActivity('word_added', `"${word}" kelimesi eklendi`);
+            }
+            saveUserData();
+            closeWordModal();
+            openFolder(currentFolderId);
+            renderDashboard();
+            showNotification(`${t('save')} ✅`, 'success');
+        }
+
+        function editWord(wordId) {
+            const word = userData.words.find(w => w.id === wordId);
+            if (word) openWordModal(word.folderId, wordId);
+        }
+
+        function deleteWord(wordId) {
+            if (confirm(`${t('delete')} - Kelime?`)) {
+                const word = userData.words.find(w => w.id === wordId);
+                userData.words = userData.words.filter(w => w.id !== wordId);
+                if (word) {
+                    userData.stats.totalWords--;
+                    if (word.mastered) userData.stats.masteredWords--;
+                    const folder = userData.folders.find(f => f.id === word.folderId);
+                    if (folder) {
+                        folder.wordCount = userData.words.filter(w => w.folderId === word.folderId).length;
+                    }
+                }
+                saveUserData();
+                openFolder(currentFolderId);
+                renderDashboard();
+            }
+        }
+        // Quiz sistemi
+        function startQuiz() {
+            const today = new Date().toISOString().split('T')[0];
+            const dueWords = userData.words.filter(word => word.nextReviewDate <= today);
+            
+            if (dueWords.length === 0) {
+                document.getElementById('quizArea').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h3 class="text-lg font-semibold mb-4">Bugün tekrar edilecek kelime yok!</h3>
+                        <p class="text-gray-600 text-sm">Harika! Tüm kelimeleriniz güncel.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentQuiz = [...dueWords].sort(() => Math.random() - 0.5);
+            currentQuizIndex = 0;
+            quizScore = 0;
+            showQuizQuestion();
+        }
+
+        function startQuickQuiz() {
+            const allWords = userData.words.filter(w => !w.mastered);
+            if (allWords.length === 0) {
+                showNotification('❌ Quiz için kelime bulunamadı!', 'error');
+                return;
+            }
+            
+            const shuffled = [...allWords].sort(() => Math.random() - 0.5);
+            currentQuiz = shuffled.slice(0, Math.min(5, shuffled.length));
+            currentQuizIndex = 0;
+            quizScore = 0;
+            currentQuizFolder = 'quick';
+            showQuizQuestion();
+        }
+
+        function startDifficultyQuiz() {
+            const hardWords = userData.words.filter(w => w.difficulty === 'hard' && !w.mastered);
+            if (hardWords.length === 0) {
+                showNotification('❌ Zor kelime bulunamadı!', 'error');
+                return;
+            }
+            
+            currentQuiz = [...hardWords].sort(() => Math.random() - 0.5);
+            currentQuizIndex = 0;
+            quizScore = 0;
+            currentQuizFolder = 'difficulty';
+            showQuizQuestion();
+        }
+
+        function startReviewQuiz() {
+            const today = new Date().toISOString().split('T')[0];
+            const reviewWords = userData.words.filter(word => {
+                if (word.mastered) return false;
+                const daysSinceLastReview = word.lastReviewDate 
+                    ? getDaysBetween(word.lastReviewDate, today)
+                    : getDaysBetween(word.createdDate, today);
+                const retentionScore = calculateRetentionScore(daysSinceLastReview, word.difficulty);
+                return retentionScore < 0.5; // %50'den düşük retention
+            });
+            
+            if (reviewWords.length === 0) {
+                showNotification('❌ Tekrar edilecek kelime bulunamadı!', 'error');
+                return;
+            }
+            
+            currentQuiz = [...reviewWords].sort(() => Math.random() - 0.5);
+            currentQuizIndex = 0;
+            quizScore = 0;
+            currentQuizFolder = 'review';
+            showQuizQuestion();
+        }
+
+        function startMasteryQuiz() {
+            const masteredWords = userData.words.filter(w => w.mastered);
+            if (masteredWords.length === 0) {
+                showNotification('❌ Öğrenilen kelime bulunamadı!', 'error');
+                return;
+            }
+            
+            currentQuiz = [...masteredWords].sort(() => Math.random() - 0.5).slice(0, 10);
+            currentQuizIndex = 0;
+            quizScore = 0;
+            currentQuizFolder = 'mastery';
+            showQuizQuestion();
+        }
+        function showQuizQuestion() {
+            if (currentQuizIndex >= currentQuiz.length) {
+                showQuizResults();
+                return;
+            }
+            
+            const word = currentQuiz[currentQuizIndex];
+            const folder = userData.folders.find(f => f.id === word.folderId);
+            const folderName = folder ? folder.name : 'Bilinmeyen Klasör';
+            
+            document.getElementById('quizArea').innerHTML = `
+                <div class="text-center">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-500">Soru ${currentQuizIndex + 1} / ${currentQuiz.length}</span>
+                            <span class="text-xs text-blue-600">📁 ${folderName}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${((currentQuizIndex) / currentQuiz.length) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-4 text-blue-600">${word.word}</h3>
+                        <p class="text-gray-600 text-sm">Bu ne anlama geliyor?</p>
+                    </div>
+                    <div class="mb-4">
+                        <textarea 
+                            id="quizAnswer" 
+                            placeholder="Cevabınızı yazın..." 
+                            rows="3"
+                            class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        ></textarea>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            onclick="checkAnswer()" 
+                            class="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                        >
+                            Cevabı Kontrol Et
+                        </button>
+                        <button 
+                            onclick="renderQuizArea()" 
+                            class="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                        >
+                            Çık
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('quizAnswer').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('quizAnswer').value.trim();
+            const word = currentQuiz[currentQuizIndex];
+            const correctAnswer = word.definition;
+            const folder = userData.folders.find(f => f.id === word.folderId);
+            const folderName = folder ? folder.name : 'Bilinmeyen Klasör';
+            const similarity = calculateSimilarity(userAnswer.toLowerCase(), correctAnswer.toLowerCase());
+            const isCorrect = similarity > 0.6 || userAnswer.toLowerCase().includes(correctAnswer.toLowerCase()) || correctAnswer.toLowerCase().includes(userAnswer.toLowerCase());
+            
+            document.getElementById('quizArea').innerHTML = `
+                <div class="text-center">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-500">Soru ${currentQuizIndex + 1} / ${currentQuiz.length}</span>
+                            <span class="text-xs text-blue-600">📁 ${folderName}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${((currentQuizIndex + 1) / currentQuiz.length) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-4">${word.word}</h3>
+                        <div class="text-lg ${isCorrect ? 'text-green-600' : 'text-red-600'} mb-4 font-medium">
+                            ${isCorrect ? `✓ ${t('correct')}!` : `✗ ${t('incorrect')}`}
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-md mb-4">
+                            <div class="text-xs text-gray-600 mb-1">${t('correctAnswer')}:</div>
+                            <div class="font-medium text-sm">${correctAnswer}</div>
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="bg-red-50 p-3 rounded-md mb-4">
+                                <div class="text-xs text-gray-600 mb-1">${t('yourAnswer')}:</div>
+                                <div class="text-sm">${userAnswer}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="rateAnswer('easy')" class="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm">${t('easyEmoji')}</button>
+                        <button onclick="rateAnswer('medium')" class="px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors text-sm">${t('mediumEmoji')}</button>
+                        <button onclick="rateAnswer('hard')" class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm">${t('hardEmoji')}</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">${t('howDifficult')}</p>
+                </div>
+            `;
+            if (isCorrect) quizScore++;
+        }
+
+        function rateAnswer(difficulty) {
+            const word = currentQuiz[currentQuizIndex];
+            reviewWord(word.id, difficulty);
+            currentQuizIndex++;
+            showQuizQuestion();
+        }
+        function showQuizResults() {
+            const percentage = Math.round((quizScore / currentQuiz.length) * 100);
+            let folderName = 'Bilinmeyen Klasör';
+            
+            if (currentQuizFolder === null) {
+                folderName = 'Tüm Klasörler';
+            } else if (currentQuizFolder === 'quick') {
+                folderName = `⚡ ${t('quickQuiz')}`;
+            } else if (currentQuizFolder === 'difficulty') {
+                folderName = `🔥 ${t('difficultyQuiz')}`;
+            } else if (currentQuizFolder === 'review') {
+                folderName = `🔄 ${t('reviewQuiz')}`;
+            } else if (currentQuizFolder === 'mastery') {
+                folderName = `👑 ${t('masteryQuiz')}`;
+            } else {
+                const folder = userData.folders.find(f => f.id === currentQuizFolder);
+                folderName = folder ? `📁 ${folder.name}` : 'Bilinmeyen Klasör';
+            }
+            
+            document.getElementById('quizArea').innerHTML = `
+                <div class="text-center py-8">
+                    <h3 class="text-xl font-bold mb-4">🎉 ${t('quizComplete')}</h3>
+                    <div class="text-sm text-gray-600 mb-2">${folderName}</div>
+                    <div class="text-3xl font-bold text-blue-600 mb-4">${quizScore}/${currentQuiz.length}</div>
+                    <div class="text-lg text-gray-600 mb-6">%${percentage} ${t('correct')}</div>
+                    <div class="space-y-2">
+                        <button onclick="renderQuizArea()" class="w-full px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                            ${t('newQuiz')}
+                        </button>
+                    </div>
+                </div>
+            `;
+            userData.stats.reviewsCompleted += currentQuiz.length;
+            
+            // Quiz geçmişini kaydet
+            if (!userData.stats.quizHistory) userData.stats.quizHistory = [];
+            userData.stats.quizHistory.push({
+                date: new Date().toISOString(),
+                score: percentage / 100,
+                totalQuestions: currentQuiz.length,
+                correctAnswers: quizScore,
+                folder: folderName
+            });
+            
+            // Son 100 quiz sonucunu tut
+            if (userData.stats.quizHistory.length > 100) {
+                userData.stats.quizHistory = userData.stats.quizHistory.slice(-100);
+            }
+            
+            // Günlük çalışma kaydı
+            recordStudySession();
+            
+            // Aktivite kaydet
+            recordActivity('quiz_completed', `${folderName} - %${percentage} başarı (${quizScore}/${currentQuiz.length})`);
+            
+            saveUserData();
+            renderDashboard();
+        }
+
+        function reviewWord(wordId, userDifficulty) {
+            const word = userData.words.find(w => w.id === wordId);
+            if (!word) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            word.lastReviewDate = today;
+            word.reviewCount++;
+            
+            let intervalMultiplier = 1;
+            if (userDifficulty === 'easy') intervalMultiplier = 1.5;
+            else if (userDifficulty === 'hard') intervalMultiplier = 0.5;
+            
+            const intervalIndex = Math.min(word.reviewCount - 1, reviewIntervals.length - 1);
+            const baseInterval = reviewIntervals[intervalIndex];
+            const adjustedInterval = Math.round(baseInterval * intervalMultiplier);
+            
+            const nextReviewDate = new Date();
+            nextReviewDate.setDate(nextReviewDate.getDate() + adjustedInterval);
+            word.nextReviewDate = nextReviewDate.toISOString().split('T')[0];
+            
+            if (word.reviewCount >= 5 && userDifficulty === 'easy' && !word.mastered) {
+                word.mastered = true;
+                userData.stats.masteredWords++;
+            }
+            saveUserData();
+        }
+
+        // Yardımcı fonksiyonlar
+        function calculateRetentionScore(daysSinceLastReview, difficulty) {
+            const S = difficultySettings[difficulty];
+            return Math.exp(-daysSinceLastReview / S);
+        }
+
+        function getDaysBetween(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const firstDate = new Date(date1);
+            const secondDate = new Date(date2);
+            return Math.round((secondDate - firstDate) / oneDay);
+        }
+
+        function calculateSimilarity(str1, str2) {
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+            const editDistance = getEditDistance(longer, shorter);
+            return (longer.length - editDistance) / longer.length;
+        }
+
+        function getEditDistance(str1, str2) {
+            const matrix = [];
+            for (let i = 0; i <= str2.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= str1.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+                    }
+                }
+            }
+            return matrix[str2.length][str1.length];
+        }
+        // Bildirim sistemi
+        function showNotification(message, type = 'info') {
+            const notificationsArea = document.getElementById('notificationsArea');
+            const colors = {
+                info: 'bg-blue-50 border-blue-200 text-blue-800',
+                success: 'bg-green-50 border-green-200 text-green-800',
+                warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+                error: 'bg-red-50 border-red-200 text-red-800'
+            };
+            
+            // Mevcut bildirimi temizle
+            const existingNotification = notificationsArea.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            notificationsArea.innerHTML = `
+                <div class="notification p-3 border rounded-md ${colors[type]} mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">${message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700 ml-2">×</button>
+                    </div>
+                </div>
+            `;
+            
+            // 10 saniye sonra otomatik kapat
+            setTimeout(() => {
+                const notification = notificationsArea.querySelector('.notification');
+                if (notification) notification.remove();
+            }, 10000);
+        }
+
+        // Render fonksiyonları
+        function renderDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const dueWords = userData.words.filter(word => word.nextReviewDate <= today);
+            
+            // Streak gösterimi
+            document.getElementById('streakCount').textContent = userData.stats.streak || 0;
+            const streakText = document.getElementById('streakText');
+            if (userData.stats.streak === 0) {
+                streakText.textContent = 'Başla!';
+                streakText.className = 'text-xs text-gray-500';
+            } else if (userData.stats.streak === 1) {
+                streakText.textContent = 'gün';
+                streakText.className = 'text-xs text-orange-500';
+            } else {
+                streakText.textContent = `gün 🔥`;
+                streakText.className = 'text-xs text-orange-500 font-semibold';
+            }
+            
+            document.getElementById('totalWords').textContent = userData.stats.totalWords;
+            document.getElementById('dueToday').textContent = dueWords.length;
+            document.getElementById('masteredWords').textContent = userData.stats.masteredWords;
+            
+            const reviewsList = document.getElementById('reviewsList');
+            if (dueWords.length === 0) {
+                reviewsList.innerHTML = `<p class="text-gray-500 text-sm">Bugün tekrar edilecek kelime yok! 🎉</p>`;
+            } else {
+                reviewsList.innerHTML = `
+                    <div class="mb-3">
+                        <button onclick="showTab('quiz');" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm">
+                            🚀 Quiz Başlat (${dueWords.length} kelime)
+                        </button>
+                    </div>
+                    ${dueWords.slice(0, 3).map(word => {
+                        const folder = userData.folders.find(f => f.id === word.folderId);
+                        const daysSinceLastReview = word.lastReviewDate 
+                            ? getDaysBetween(word.lastReviewDate, today)
+                            : getDaysBetween(word.createdDate, today);
+                        const retentionScore = calculateRetentionScore(daysSinceLastReview, word.difficulty);
+                        const retentionPercentage = Math.round(retentionScore * 100);
+                        
+                        return `
+                            <div class="p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-medium text-sm">${word.word}</span>
+                                        <span class="text-xs text-gray-600 ml-2">(${folder ? folder.name : 'Bilinmeyen Klasör'})</span>
+                                        <span class="text-xs text-red-600 ml-2">Hatırlama: %${retentionPercentage}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                    ${dueWords.length > 3 ? `<p class="text-xs text-gray-500 mt-2">...ve ${dueWords.length - 3} kelime daha</p>` : ''}
+                `;
+            }
+        }
+        function renderFolders() {
+            currentFolderId = null;
+            const foldersList = document.getElementById('foldersList');
+            
+            if (userData.folders.length === 0) {
+                foldersList.innerHTML = `<p class="text-gray-500 text-sm">Henüz klasör oluşturulmamış.</p>`;
+                return;
+            }
+            
+            // Klasörleri hiyerarşik olarak sırala
+            const rootFolders = userData.folders.filter(f => !f.parentId);
+            let html = '';
+            
+            rootFolders.forEach(folder => {
+                html += renderFolderHierarchy(folder, 0);
+            });
+            
+            foldersList.innerHTML = html;
+        }
+
+        function renderFolderHierarchy(folder, depth) {
+            const today = new Date().toISOString().split('T')[0];
+            const directWordCount = userData.words.filter(w => w.folderId === folder.id).length;
+            const totalWordCount = getFolderWordCount(folder.id, true);
+            const dueCount = userData.words.filter(w => w.folderId === folder.id && w.nextReviewDate <= today).length;
+            const subfolders = userData.folders.filter(f => f.parentId === folder.id);
+            const hasSubfolders = subfolders.length > 0;
+            
+            const indent = depth * 20;
+            
+            // Klasör simgesi: Alt klasörü varsa açık/kapalı, yoksa normal klasör
+            let folderIcon = '📁'; // Varsayılan klasör
+            if (hasSubfolders) {
+                folderIcon = folder.isExpanded ? '📂' : '📁'; // Açık/kapalı klasör
+            }
+            
+            // Genişletme oku (sadece alt klasörü olanlar için)
+            const expandArrow = hasSubfolders ? (folder.isExpanded ? '▼' : '▶') : '';
+            
+            let html = `
+                <div class="folder-item" style="margin-left: ${indent}px;">
+                    <div class="p-3 border border-gray-200 rounded-md hover:bg-gray-50 mb-2">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center flex-1 cursor-pointer" onclick="openFolder(${folder.id})">
+                                ${hasSubfolders ? `
+                                    <span class="mr-2 cursor-pointer text-blue-600 hover:text-blue-800 font-bold" onclick="event.stopPropagation(); toggleFolder(${folder.id})" title="Genişlet/Daralt">
+                                        ${expandArrow}
+                                    </span>
+                                ` : '<span class="mr-2 w-4"></span>'}
+                                <span class="mr-2 text-lg">${folderIcon}</span>
+                                <div>
+                                    <h3 class="font-medium text-sm">${folder.name}</h3>
+                                    <div class="text-xs text-gray-600">
+                                        ${directWordCount > 0 ? `📝 ${directWordCount} kelime` : '📝 Boş'}
+                                        ${totalWordCount > directWordCount ? ` • 📊 ${totalWordCount} toplam` : ''}
+                                        ${hasSubfolders ? ` • 📁 ${subfolders.length} alt klasör` : ''}
+                                    </div>
+                                    ${dueCount > 0 ? `<p class="text-xs text-red-600">⏰ ${dueCount} tekrar edilecek</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="event.stopPropagation(); createSubFolder(${folder.id})" class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition-colors" title="Alt Klasör Ekle">
+                                    ➕
+                                </button>
+                                <button onclick="event.stopPropagation(); openFolder(${folder.id})" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors">
+                                    👁️
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteFolder(${folder.id})" class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Alt klasörleri render et (eğer genişletilmişse)
+            if (folder.isExpanded && hasSubfolders) {
+                subfolders.forEach(subfolder => {
+                    html += renderFolderHierarchy(subfolder, depth + 1);
+                });
+            }
+            
+            return html;
+        }
+
+        function renderQuizArea() {
+            renderQuizOptions();
+            updateQuizStats();
+        }
+
+        function renderQuizOptions() {
+            const today = new Date().toISOString().split('T')[0];
+            const allDueWords = userData.words.filter(word => word.nextReviewDate <= today);
+            const quizOptions = document.getElementById('quizOptions');
+            
+            if (allDueWords.length === 0) {
+                quizOptions.innerHTML = `
+                    <div class="text-center py-6">
+                        <div class="text-4xl mb-2">🎉</div>
+                        <p class="text-gray-500 text-sm">Bugün tekrar edilecek kelime yok!</p>
+                    </div>
+                `;
+                document.getElementById('quizArea').innerHTML = '';
+                return;
+            }
+            
+            let html = `<h4 class="text-sm font-medium mb-3">Hangi klasörden quiz çözmek istiyorsunuz?</h4>`;
+            
+            // Tüm kelimeler seçeneği
+            html += `
+                <button 
+                    onclick="startQuiz()" 
+                    class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 font-medium shadow-lg mb-2"
+                >
+                    🌟 Tüm Klasörler (${allDueWords.length} kelime)
+                </button>
+            `;
+            
+            quizOptions.innerHTML = html;
+        }
+        // Quiz istatistiklerini güncelle
+        function updateQuizStats() {
+            const stats = userData.stats;
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('totalQuizzes').textContent = stats.reviewsCompleted || 0;
+            document.getElementById('averageScore').textContent = '85%'; // Placeholder
+            document.getElementById('bestStreak').textContent = stats.streak || 0;
+            
+            // Bugünkü quiz sayısı
+            const todayQuizzes = stats.studyDates && stats.studyDates.includes(today) ? 1 : 0;
+            document.getElementById('todayQuizzes').textContent = todayQuizzes;
+        }
+
+        function renderStats() {
+            renderGeneralStats();
+            renderWeeklyActivity();
+            renderFolderPerformance();
+            renderDifficultyDistribution();
+            renderRecentActivity();
+        }
+
+        function renderGeneralStats() {
+            const totalWords = userData.words.length;
+            const masteredWords = userData.words.filter(w => w.mastered).length;
+            const currentStreak = userData.stats.streak || 0;
+            
+            // Doğruluk oranını hesapla (son 50 quiz sonucundan)
+            const recentQuizzes = (userData.stats.quizHistory || []).slice(-50);
+            const accuracy = recentQuizzes.length > 0 
+                ? Math.round((recentQuizzes.reduce((sum, quiz) => sum + quiz.score, 0) / recentQuizzes.length) * 100)
+                : 0;
+
+            document.getElementById('statTotalWords').textContent = totalWords;
+            document.getElementById('statMasteredWords').textContent = masteredWords;
+            document.getElementById('statCurrentStreak').textContent = currentStreak;
+            document.getElementById('statAccuracy').textContent = accuracy + '%';
+        }
+
+        function renderWeeklyActivity() {
+            const grid = document.getElementById('weeklyActivityGrid');
+            const today = new Date();
+            const studyDates = userData.stats.studyDates || [];
+            
+            // Son 7 günü göster
+            let html = '';
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const studyCount = studyDates.filter(d => d === dateStr).length;
+                let intensity = 'bg-gray-200';
+                
+                if (studyCount > 0) {
+                    if (studyCount >= 5) intensity = 'bg-green-800';
+                    else if (studyCount >= 3) intensity = 'bg-green-600';
+                    else if (studyCount >= 2) intensity = 'bg-green-400';
+                    else intensity = 'bg-green-200';
+                }
+                
+                html += `<div class="w-8 h-8 ${intensity} rounded-sm flex items-center justify-center text-xs font-semibold ${studyCount > 0 ? 'text-white' : 'text-gray-400'}" title="${dateStr}: ${studyCount} aktivite">${studyCount || ''}</div>`;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        function renderFolderPerformance() {
+            const list = document.getElementById('folderPerformanceList');
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (userData.folders.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Henüz klasör oluşturulmamış.</p>`;
+                return;
+            }
+            
+            const folderStats = userData.folders.map(folder => {
+                const folderWords = userData.words.filter(w => w.folderId === folder.id);
+                const masteredWords = folderWords.filter(w => w.mastered).length;
+                const dueWords = folderWords.filter(w => w.nextReviewDate <= today).length;
+                const totalWords = folderWords.length;
+                const masteryRate = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0;
+                
+                return {
+                    folder,
+                    totalWords,
+                    masteredWords,
+                    dueWords,
+                    masteryRate
+                };
+            }).sort((a, b) => b.masteryRate - a.masteryRate);
+            
+            let html = '';
+            folderStats.forEach(stat => {
+                const progressColor = stat.masteryRate >= 80 ? 'bg-green-500' : 
+                                    stat.masteryRate >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">${stat.folder.name}</div>
+                            <div class="text-xs text-gray-600">
+                                ${stat.totalWords} kelime • ${stat.masteredWords} öğrenilen
+                                ${stat.dueWords > 0 ? ` • ${stat.dueWords} tekrar edilecek` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="${progressColor} h-2 rounded-full transition-all duration-500" style="width: ${stat.masteryRate}%"></div>
+                            </div>
+                            <span class="text-sm font-semibold w-8 text-right">${stat.masteryRate}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+        function renderDifficultyDistribution() {
+            const easyWords = userData.words.filter(w => w.difficulty === 'easy').length;
+            const mediumWords = userData.words.filter(w => w.difficulty === 'medium').length;
+            const hardWords = userData.words.filter(w => w.difficulty === 'hard').length;
+            const totalWords = userData.words.length;
+            
+            const easyPercent = totalWords > 0 ? (easyWords / totalWords) * 100 : 0;
+            const mediumPercent = totalWords > 0 ? (mediumWords / totalWords) * 100 : 0;
+            const hardPercent = totalWords > 0 ? (hardWords / totalWords) * 100 : 0;
+            
+            document.getElementById('easyBar').style.width = easyPercent + '%';
+            document.getElementById('mediumBar').style.width = mediumPercent + '%';
+            document.getElementById('hardBar').style.width = hardPercent + '%';
+            
+            document.getElementById('easyCount').textContent = easyWords;
+            document.getElementById('mediumCount').textContent = mediumWords;
+            document.getElementById('hardCount').textContent = hardWords;
+        }
+
+        function renderRecentActivity() {
+            const list = document.getElementById('recentActivityList');
+            const activities = userData.stats.activities || [];
+            
+            if (activities.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Henüz aktivite yok</p>`;
+                return;
+            }
+            
+            // Son 10 aktiviteyi göster
+            const recentActivities = activities.slice(-10).reverse();
+            
+            let html = '';
+            recentActivities.forEach(activity => {
+                const date = new Date(activity.date);
+                const timeAgo = getTimeAgo(date);
+                const icon = getActivityIcon(activity.type);
+                
+                html += `
+                    <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md">
+                        <span class="text-lg">${icon}</span>
+                        <div class="flex-1">
+                            <div class="text-sm">${activity.description}</div>
+                            <div class="text-xs text-gray-500">${timeAgo}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function getActivityIcon(type) {
+            const icons = {
+                'word_added': '📝',
+                'quiz_completed': '🎯',
+                'folder_created': '📁',
+                'word_mastered': '✅',
+                'streak_achieved': '🔥'
+            };
+            return icons[type] || '📌';
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 60) return `${diffMins} dakika önce`;
+            if (diffHours < 24) return `${diffHours} saat önce`;
+            if (diffDays < 7) return `${diffDays} gün önce`;
+            return date.toLocaleDateString('tr-TR');
+        }
+
+        // Aktivite kaydetme fonksiyonu
+        function recordActivity(type, description) {
+            if (!userData.stats.activities) userData.stats.activities = [];
+            
+            userData.stats.activities.push({
+                type: type,
+                description: description,
+                date: new Date().toISOString()
+            });
+            
+            // Son 100 aktiviteyi tut
+            if (userData.stats.activities.length > 100) {
+                userData.stats.activities = userData.stats.activities.slice(-100);
+            }
+            
+            saveUserData();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderFolders();
+            renderQuizArea();
+        }
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Klasör adı Enter tuşu desteği
+            document.getElementById('folderNameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') createFolder();
+            });
+        });
+    </script>
+</body>
+</html>
